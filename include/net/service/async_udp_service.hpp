@@ -113,8 +113,9 @@ public:
   /**
    * @brief Start the service on the context.
    * @param ctx The async context to start the service on.
+   * @returns an error code indicating success.
    */
-  auto start(async_context &ctx) noexcept -> void;
+  auto start(async_context &ctx) noexcept -> std::error_code;
   /**
    * @brief Submits an asynchronous socket recv.
    * @param ctx The async context to start the reader on.

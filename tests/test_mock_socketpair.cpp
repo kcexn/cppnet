@@ -40,11 +40,12 @@ struct test_service {
     test_signal = signum;
     test_cv.notify_all();
   }
-  auto start(async_context &ctx) noexcept -> void
+  auto start(async_context &ctx) noexcept -> std::error_code
   {
     std::lock_guard lock{test_mtx};
     test_started = 1;
     test_cv.notify_all();
+    return {};
   }
 };
 
@@ -52,10 +53,8 @@ TEST_F(AsyncServiceTest, StartTest)
 {
   using enum async_context::context_states;
 
-  auto service = context_thread<test_service>();
+  auto service = basic_context_thread<test_service>();
 
-  service.start();
-  service.state.wait(PENDING);
-  ASSERT_EQ(service.state, STOPPED);
+  EXPECT_THROW(service.start(), std::system_error);
 }
 // NOLINTEND

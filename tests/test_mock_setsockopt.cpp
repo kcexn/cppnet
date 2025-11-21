@@ -41,18 +41,9 @@ TEST_F(AsyncTcpServiceTest, SetSockOptError)
   ASSERT_EQ(n, 0);
 }
 
-TEST_F(AsyncTcpServiceTest, ServiceNoHang)
+TEST_F(AsyncTcpServiceTest, StartFailed)
 {
-  using namespace io::socket;
-
-  using enum async_context::context_states;
-
-  server_v4->start(addr_v4);
-  server_v4->state.wait(PENDING);
-
-  server_v4->signal(server_v4->terminate);
-  server_v4->state.wait(STARTED);
-  ASSERT_EQ(server_v4->state, STOPPED);
+  EXPECT_THROW(server_v4->start(addr_v4), std::system_error);
 }
 
 TEST_F(AsyncUDPServiceTest, SetSockOptError)

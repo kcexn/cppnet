@@ -70,7 +70,7 @@ struct tcp_echo_service : public async_tcp_service<tcp_echo_service> {
 
 class AsyncTcpServiceTest : public ::testing::Test {
 protected:
-  using server_type = context_thread<tcp_echo_service>;
+  using server_type = basic_context_thread<tcp_echo_service>;
   template <typename T> using socket_address = io::socket::socket_address<T>;
   using socket_dialog =
       io::socket::socket_dialog<io::execution::poll_multiplexer>;

@@ -13,14 +13,6 @@ include(FetchContent)
 # https://github.com/cpm-cmake/CPM.cmake#adding-cpm
 include(cmake/CPM.cmake)
 
-# Add stdexec as a dependency
-CPMAddPackage(
-  URI "gh:NVIDIA/stdexec#main"
-  OPTIONS
-    "STDEXEC_BUILD_EXAMPLES OFF"
-    "STDEXEC_BUILD_TESTING OFF"
-)
-
 # Add AsyncBerkeley as a dependency.
 CPMAddPackage(
   URI "gh:kcexn/async-berkeley@0.4.1"
@@ -34,7 +26,7 @@ add_library(cppnet INTERFACE)
 target_include_directories(
   cppnet INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/>
                    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-target_link_libraries(cppnet INTERFACE asyncberk STDEXEC::stdexec)
+target_link_libraries(cppnet INTERFACE asyncberk)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 

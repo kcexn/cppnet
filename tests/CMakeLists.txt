@@ -11,6 +11,7 @@ set(
     test_mock_setsockopt
     test_mock_socketpair
     test_timers
+    test_tcp_client
 )
 
 foreach(TEST_NAME IN LISTS TEST_NAMES)

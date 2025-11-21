@@ -24,81 +24,81 @@
 #include <stdexec/execution.hpp>
 namespace net::service {
 template <ServiceLike Service>
-auto context_thread<Service>::stop() noexcept -> void
+auto basic_context_thread<Service>::stop() noexcept -> void
 {
-  auto socket = timers.sockets[1];
-  timers.sockets[1] = timers.INVALID_SOCKET;
-  if (socket != timers.INVALID_SOCKET)
-    io::socket::close(socket);
+  auto socket = std::exchange(timers.sockets[1], timers.INVALID_SOCKET);
+  io::socket::close(socket);
   state = STOPPED;
+  state.notify_all();
 }
 
 template <ServiceLike Service>
 template <typename... Args>
-auto context_thread<Service>::start(Args &&...args) -> void
+auto basic_context_thread<Service>::start(Args &&...args) -> void
 {
   auto lock = std::lock_guard{mtx_};
-  if (started_)
-    throw std::invalid_argument("context_thread can't be started twice.");
+  if (state != PENDING)
+    throw std::invalid_argument("context_thread already started");
 
-  server_ = std::thread([&]() noexcept {
-    using namespace detail;
-    using namespace io::socket;
-    using namespace std::chrono;
+  auto &sockets = timers.sockets;
+  if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets.data()))
+  {
+    throw std::system_error({errno, std::system_category()},
+                            "Failed to initialize socketpair");
+  }
 
+  auto error = std::error_code();
+  server_ = std::thread([&] {
     auto service = Service{std::forward<Args>(args)...};
-    auto &sockets = timers.sockets;
-    if (!socketpair(AF_UNIX, SOCK_STREAM, 0, sockets.data()))
-    {
-      const auto token = scope.get_stop_token();
+    const auto token = scope.get_stop_token();
 
-      isr(poller.emplace(sockets[0]), [&]() noexcept {
-        auto sigmask_ = sigmask.exchange(0);
-        for (int signum = 0; auto mask = (sigmask_ >> signum); ++signum)
-        {
-          if (mask & (1 << 0))
-            service.signal_handler(signum);
-        }
+    isr(poller.emplace(sockets[0]), [&] {
+      using namespace std::chrono;
 
-        if (sigmask_ & (1 << terminate))
-        {
-          scope.request_stop();
-          timers.add(
-              seconds(1),
-              [&](timers::timer_id) { service.signal_handler(terminate); },
-              seconds(1));
-        }
-
-        return !token.stop_requested();
-      });
-
-      service.start(static_cast<async_context &>(*this));
-      state = STARTED;
-
-      if (token.stop_requested())
+      auto sigmask_ = sigmask.exchange(0);
+      for (int signum = 0; auto mask = (sigmask_ >> signum); ++signum)
       {
-        state = STOPPED;
-        signal(terminate);
+        if (mask & (1 << 0))
+          service.signal_handler(signum);
       }
 
+      if (sigmask_ & (1 << terminate))
+      {
+        scope.request_stop();
+        timers.add(1s, [&](auto) { service.signal_handler(terminate); }, 1s);
+      }
+
+      return !token.stop_requested();
+    });
+
+    error = service.start(*this);
+    if (error)
+    {
+      signal(terminate);
+    }
+    else
+    {
+      state = STARTED;
       state.notify_all();
-      run();
     }
 
+    run();
     stop();
-    state.notify_all();
   });
 
-  started_ = true;
+  state.wait(PENDING);
+  if (error)
+    throw std::system_error(error, "service failed to start");
 }
 
-template <ServiceLike Service> context_thread<Service>::~context_thread()
+template <ServiceLike Service>
+basic_context_thread<Service>::~basic_context_thread()
 {
-  if (!started_)
-    return;
-
-  signal(terminate);
-  server_.join();
+  if (state > PENDING)
+  {
+    signal(terminate);
+    server_.join();
+  }
 }
 } // namespace net::service
 #endif // CPPNET_CONTEXT_THREAD_IMPL_HPP

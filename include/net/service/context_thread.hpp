@@ -24,6 +24,27 @@
 #include <thread>
 /** @brief This namespace is for network services. */
 namespace net::service {
+/** @brief internal service implementation details. */
+namespace detail {
+/** @brief Null service that services as a ServiceLike placeholder. */
+struct null_service {
+  /**
+   * @brief signal handling placeholder.
+   * @param signum The signal number to handle.
+   */
+  static auto signal_handler(int signum) noexcept -> void {};
+  /**
+   * @brief start placeholder.
+   * @param ctx The asynchronous context to start on.
+   * @returns A successful error code.
+   */
+  static auto start(async_context &ctx) noexcept -> std::error_code
+  {
+    return {};
+  };
+};
+} // namespace detail
+
 /**
  * @brief A threaded asynchronous service.
  *
@@ -32,18 +53,20 @@ namespace net::service {
  *
  * @tparam Service The service to run.
  */
-template <ServiceLike Service> class context_thread : public async_context {
+template <ServiceLike Service>
+class basic_context_thread : public async_context {
 public:
   /** @brief Default constructor. */
-  context_thread() = default;
+  basic_context_thread() = default;
   /** @brief Deleted copy constructor. */
-  context_thread(const context_thread &) = delete;
+  basic_context_thread(const basic_context_thread &) = delete;
   /** @brief Deleted move constructor. */
-  context_thread(context_thread &&) = delete;
+  basic_context_thread(basic_context_thread &&) = delete;
   /** @brief Deleted copy assignment. */
-  auto operator=(const context_thread &) -> context_thread & = delete;
+  auto
+  operator=(const basic_context_thread &) -> basic_context_thread & = delete;
   /** @brief Deleted move assignment. */
-  auto operator=(context_thread &&) -> context_thread & = delete;
+  auto operator=(basic_context_thread &&) -> basic_context_thread & = delete;
 
   /**
    * @brief Start the asynchronous service.
@@ -55,19 +78,27 @@ public:
   template <typename... Args> auto start(Args &&...args) -> void;
 
   /** @brief The destructor signals the thread before joining it. */
-  ~context_thread();
+  ~basic_context_thread();
 
 private:
   /** @brief The thread that serves the asynchronous service. */
   std::thread server_;
   /** @brief Mutex for thread-safety. */
   std::mutex mtx_;
-  /** @brief Flag that guards against starting a thread twice. */
-  bool started_{false};
 
   /** @brief Called when the async_service is stopped. */
   auto stop() noexcept -> void;
 };
+
+/**
+ * @brief Default context thread is a null service thread.
+ * @details The null service thread implements a service which does
+ * nothing. A null service context_thread is used for starting an
+ * asynchronous context in its own thread and adding services to it
+ * manually. A null service context_thread is useful for implementing
+ * asynchronous network clients.
+ */
+using context_thread = basic_context_thread<detail::null_service>;
 
 } // namespace net::service
 

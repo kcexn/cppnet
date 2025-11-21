@@ -48,21 +48,17 @@ auto async_tcp_service<TCPStreamHandler, Size>::signal_handler(
 
 template <typename TCPStreamHandler, std::size_t Size>
 auto async_tcp_service<TCPStreamHandler, Size>::start(
-    async_context &ctx) noexcept -> void
+    async_context &ctx) noexcept -> std::error_code
 {
-  using namespace io;
-  using namespace io::socket;
-
   auto sock = socket_handle(address_->sin6_family, SOCK_STREAM, 0);
   if (auto error = initialize_(sock))
-  {
-    ctx.scope.request_stop();
-    return;
-  }
+    return error;
 
   acceptor_sockfd_ = static_cast<socket_type>(sock);
 
   acceptor(ctx, ctx.poller.emplace(std::move(sock)));
+
+  return {};
 }
 
 template <typename TCPStreamHandler, std::size_t Size>
@@ -153,10 +149,8 @@ template <typename TCPStreamHandler, std::size_t Size>
 auto async_tcp_service<TCPStreamHandler, Size>::stop_() -> void
 {
   using namespace io::socket;
-
   auto sockfd = acceptor_sockfd_.exchange(INVALID_SOCKET);
-  if (sockfd != INVALID_SOCKET)
-    shutdown(sockfd, SHUT_RD);
+  shutdown(sockfd, SHUT_RD);
 }
 
 } // namespace net::service

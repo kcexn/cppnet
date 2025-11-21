@@ -31,10 +31,10 @@ inline auto socketpair_interrupt_source_t::interrupt() const noexcept -> void
   ::io::sendmsg(sockets[1], msg, MSG_NOSIGNAL);
 }
 
-template <InterruptSource Interrupt>
-inline auto interrupt<Interrupt>::operator()() const noexcept -> void
+template <InterruptSource Source>
+inline auto interrupt<Source>::operator()() const noexcept -> void
 {
-  Interrupt::interrupt();
+  Source::interrupt();
 }
 
 } // namespace net::timers

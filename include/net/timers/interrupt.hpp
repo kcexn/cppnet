@@ -45,9 +45,9 @@ struct socketpair_interrupt_source_t {
  * concept.
  * @details Interrupts are used to awaken sleeping event-loops.
  */
-template <InterruptSource Interrupt> struct interrupt : public Interrupt {
+template <InterruptSource Source> struct interrupt : public Source {
   /** @brief The underlying interrupt source type. */
-  using interrupt_source_t = Interrupt;
+  using interrupt_source_t = Source;
   /** @brief Calls the underlying interrupt. */
   inline auto operator()() const noexcept -> void;
 };

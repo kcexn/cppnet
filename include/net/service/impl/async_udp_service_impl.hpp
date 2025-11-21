@@ -38,22 +38,18 @@ auto async_udp_service<UDPStreamHandler, Size>::signal_handler(
 
 template <typename UDPStreamHandler, std::size_t Size>
 auto async_udp_service<UDPStreamHandler, Size>::start(
-    async_context &ctx) noexcept -> void
+    async_context &ctx) noexcept -> std::error_code
 {
-  using namespace io;
-  using namespace io::socket;
-
   auto sock = socket_handle(address_->sin6_family, SOCK_DGRAM, 0);
   if (auto error = initialize_(sock))
-  {
-    ctx.scope.request_stop();
-    return;
-  }
+    return error;
 
   server_sockfd_ = static_cast<socket_type>(sock);
 
   submit_recv(ctx, ctx.poller.emplace(std::move(sock)),
               std::make_shared<read_context>());
+
+  return {};
 }
 
 template <typename UDPStreamHandler, std::size_t Size>
@@ -121,7 +117,6 @@ template <typename UDPStreamHandler, std::size_t Size>
 auto async_udp_service<UDPStreamHandler, Size>::stop_() -> void
 {
   using namespace io::socket;
-
   auto sockfd = server_sockfd_.exchange(INVALID_SOCKET);
   shutdown(sockfd, SHUT_RD);
 }

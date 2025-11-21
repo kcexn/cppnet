@@ -19,6 +19,7 @@
 #ifndef CPPNET_CONCEPT_HPP
 #define CPPNET_CONCEPT_HPP
 #include <concepts>
+#include <system_error>
 // Forward declarations
 namespace net::service {
 struct async_context;
@@ -36,12 +37,17 @@ concept BasicLockable = requires(Lock lock) {
   { lock.unlock() } -> std::same_as<void>;
 };
 
-/** @brief ServiceLike describes types that behave like an application or
- * service. */
+/**
+ * @brief Constrains types that behave like an application or service.
+ * @details ServiceLike functions can mutate state in the asynchronous
+ * context.
+ * @note A ServiceLike may call `ctx.scope.request_stop()` any time it
+ * runs.
+ */
 template <typename S>
 concept ServiceLike = requires(S service, service::async_context &ctx) {
   { service.signal_handler(1) } noexcept -> std::same_as<void>;
-  { service.start(ctx) } noexcept -> std::same_as<void>;
+  { service.start(ctx) } noexcept -> std::same_as<std::error_code>;
 };
 
 /** @brief This namespace is for timers and interrupts. */

@@ -86,8 +86,9 @@ TEST_F(AsyncUDPServiceTest, InitializeError)
 {
   using namespace io::socket;
   service_v4->initialized = true;
-  service_v4->start(*ctx);
-  EXPECT_TRUE(ctx->scope.get_stop_token().stop_requested());
+  auto error = service_v4->start(*ctx);
+
+  EXPECT_EQ(error, std::errc::invalid_argument);
 }
 
 TEST_F(AsyncUDPServiceTest, AsyncServerTest)

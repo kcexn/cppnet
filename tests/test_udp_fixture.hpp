@@ -81,7 +81,7 @@ protected:
   template <typename T> using socket_address = io::socket::socket_address<T>;
   using socket_dialog =
       io::socket::socket_dialog<io::execution::poll_multiplexer>;
-  using server_type = context_thread<udp_echo_service>;
+  using server_type = basic_context_thread<udp_echo_service>;
 
   auto SetUp() -> void override
   {

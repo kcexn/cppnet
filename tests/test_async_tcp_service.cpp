@@ -92,8 +92,8 @@ TEST_F(AsyncTcpServiceTest, InitializeError)
   using namespace stdexec;
 
   service_v4->initialized = true;
-  service_v4->start(*ctx);
-  EXPECT_TRUE(ctx->scope.get_stop_token().stop_requested());
+  auto error = service_v4->start(*ctx);
+  EXPECT_EQ(error, std::errc::invalid_argument);
 
   auto n = 0UL;
   ctx->signal(ctx->terminate);
@@ -113,8 +113,6 @@ TEST_F(AsyncTcpServiceTest, AsyncServerTest)
 
   server_v4->start(addr_v4);
   server_v6->start(addr_v6);
-  server_v6->state.wait(PENDING);
-  server_v4->state.wait(PENDING);
   ASSERT_EQ(server_v4->state, STARTED);
   ASSERT_EQ(server_v6->state, STARTED);
 
@@ -160,15 +158,13 @@ TEST_F(AsyncTcpServiceTest, ServerDrainTest)
   using enum async_context::context_states;
 
   server_v4->start(addr_v4);
-  server_v4->state.wait(PENDING);
   ASSERT_EQ(server_v4->state, STARTED);
 
   auto sock = std::make_shared<socket_handle>(AF_INET, SOCK_STREAM, 0);
   ASSERT_EQ(connect(*sock, addr_v4), 0);
 
   test_counter = 0;
-  server_v4->timers.add(milliseconds(3500),
-                        [&](timer_id tid) { sock.reset(); });
+  server_v4->timers.add(milliseconds(3500), [&](auto) { sock.reset(); });
   // The server must process the timer_add event before
   // it receives a terminate signal.
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
