@@ -27,7 +27,7 @@ Add cppnet to your CMake project using [CPM](https://github.com/cpm-cmake/CPM.cm
 ```cmake
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:kcexn/cloudbus-net@0.4.1")
+CPMAddPackage("gh:kcexn/cloudbus-net@0.9.0")
 
 target_link_libraries(your_target PRIVATE cppnet)
 ```
@@ -40,7 +40,7 @@ include(FetchContent)
 FetchContent_Declare(
   cppnet
   GIT_REPOSITORY https://github.com/kcexn/cloudbus-net.git
-  GIT_TAG v0.4.1
+  GIT_TAG v0.9.0
 )
 FetchContent_MakeAvailable(cppnet)
 
@@ -85,8 +85,8 @@ struct echo_service : public async_tcp_service<echo_service> {
     // Cleanup code here
   }
 
-  // Handle incoming data - MUST call reader() to continue
-  auto operator()(async_context &ctx, const socket_dialog &socket,
+  // Handle incoming data - MUST call submit_recv() to continue
+  auto service(async_context &ctx, const socket_dialog &socket,
                   std::shared_ptr<read_context> rctx,
                   std::span<const std::byte> buf) -> void {
     using namespace io::socket;
@@ -96,7 +96,7 @@ struct echo_service : public async_tcp_service<echo_service> {
     sender auto echo_sender =
       io::sendmsg(socket, socket_message{.buffers = buf}, 0) |
       then([&, socket, rctx](auto &&) {
-        reader(ctx, socket, std::move(rctx)); // Continue reading
+        submit_recv(ctx, socket, std::move(rctx)); // Continue reading
       }) |
       upon_error([](auto &&) {});
 
@@ -111,16 +111,12 @@ int main() {
   addr->sin_addr.s_addr = INADDR_ANY;
   addr->sin_port = htons(8080);
 
-  // Create and start the service
-  auto ctx = context_thread<echo_service>();
-  auto mtx = std::mutex();
-  auto cv = std::condition_variable();
+  // Create and start the service in its own thread
+  auto ctx = basic_context_thread<echo_service>();
+  ctx.start(addr);
 
-  ctx.start(mtx, cv, addr);
-
-  // Wait for termination signal
-  std::unique_lock lock(mtx);
-  cv.wait(lock, [&] { return ctx.stopped.load(); });
+  // Wait for termination (service runs until SIGTERM/SIGINT)
+  ctx.state.wait(async_context::STARTED);
 
   return 0;
 }
@@ -140,7 +136,7 @@ struct udp_echo_service : public async_udp_service<udp_echo_service> {
   template <typename T>
   explicit udp_echo_service(socket_address<T> address) : Base(address) {}
 
-  auto operator()(async_context &ctx, const socket_dialog &socket,
+  auto service(async_context &ctx, const socket_dialog &socket,
                   std::shared_ptr<read_context> rctx,
                   std::span<const std::byte> buf) -> void {
     using namespace io::socket;
@@ -150,7 +146,7 @@ struct udp_echo_service : public async_udp_service<udp_echo_service> {
     sender auto echo_sender =
       io::sendmsg(socket, rctx->msg, 0) |
       then([&, socket, rctx](auto &&) {
-        reader(ctx, socket, std::move(rctx));
+        submit_recv(ctx, socket, std::move(rctx));
       }) |
       upon_error([](auto &&) {});
 
@@ -164,14 +160,11 @@ int main() {
   addr->sin_addr.s_addr = INADDR_ANY;
   addr->sin_port = htons(8080);
 
-  auto ctx = context_thread<udp_echo_service>();
-  auto mtx = std::mutex();
-  auto cv = std::condition_variable();
+  auto ctx = basic_context_thread<udp_echo_service>();
+  ctx.start(addr);
 
-  ctx.start(mtx, cv, addr);
-
-  std::unique_lock lock(mtx);
-  cv.wait(lock, [&] { return ctx.stopped.load(); });
+  // Wait for termination
+  ctx.state.wait(async_context::STARTED);
 
   return 0;
 }
@@ -211,14 +204,15 @@ Documentation will be in `build/debug/docs/html/index.html`.
 
 The library uses the CRTP (Curiously Recurring Template Pattern) for services:
 
-- **`async_context`** - Execution context with async_scope, I/O multiplexer, and signal handling
-- **`context_thread<Service>`** - Runs a service in a dedicated thread
+- **`async_context`** - Execution context with async_scope, I/O multiplexer, signal handling, and event loop timers
+- **`context_thread<Service>`** - Runs a service in a dedicated thread (default `null_service` is useful for network clients)
 - **`async_tcp_service<Handler>`** - TCP server base class with accept/read loop
 - **`async_udp_service<Handler>`** - UDP server base class with read loop
+- **`timers<InterruptSource>`** - Event-loop timers for scheduling callbacks
 
 Your service inherits from the appropriate template and implements:
 
-- `operator()` to handle received data (required)
+- `operator()` to handle received data (required - must call `reader()` to continue)
 - `initialize()` to configure the socket (optional)
 - `stop()` for graceful shutdown (optional, TCP only)
 
@@ -233,7 +227,7 @@ Send signals via `async_context::signal(int signum)`.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
@@ -248,6 +242,6 @@ Contributions are welcome! Please ensure:
 
 All dependencies are automatically fetched via CPM:
 
-- [NVIDIA stdexec](https://github.com/NVIDIA/stdexec) - Sender/receiver framework
-- [AsyncBerkeley](https://github.com/kcexn/async-berkeley) - Async socket operations
-- [GoogleTest](https://github.com/google/googletest) - Testing framework (tests only)
+- [NVIDIA stdexec](https://github.com/NVIDIA/stdexec) (main branch) - Sender/receiver framework
+- [AsyncBerkeley](https://github.com/kcexn/async-berkeley) (v0.4.1) - Async socket operations
+- [GoogleTest](https://github.com/google/googletest) (v1.17.0) - Testing framework (tests only)
