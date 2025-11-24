@@ -118,6 +118,15 @@ auto async_udp_service<UDPStreamHandler, Size>::stop_() -> void
 {
   using namespace io::socket;
   auto sockfd = server_sockfd_.exchange(INVALID_SOCKET);
+
+  // `shutdown` is used here instead of `close` to guard against the socket
+  // file descriptor being reused before the event-loop has cleaned up
+  // all of the associated callbacks (and resources). `close` SHOULD
+  // only be called by the socket_dialog destructor.
+  //
+  // Strictly speaking, using `shutdown` to interrupt the underlying
+  // asynchronous event-loop is not portable (behaviour not specified by POSIX).
+  // However, I believe this should work on most good implementations.
   shutdown(sockfd, SHUT_RD);
 }
 
