@@ -170,6 +170,33 @@ int main() {
 }
 ```
 
+### Client Factories
+
+```cpp
+class client_factory {
+public:
+  using async_context = net::service::async_context;
+  using context_thread = net::service::context_thread;
+
+  struct client_t {
+    async_context *ctx = nullptr;
+
+    // Relevant client methods can be implemented here.
+  };
+
+  auto make_client() -> client_t
+  {
+    if (ctx_.state == async_context::PENDING)
+      ctx_.start();
+
+    return {.ctx = std::addressof(ctx_)};
+  }
+
+private:
+  context_thread ctx_;
+};
+```
+
 ## Building from Source
 
 ```bash
