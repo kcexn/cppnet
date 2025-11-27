@@ -27,7 +27,7 @@ Add cppnet to your CMake project using [CPM](https://github.com/cpm-cmake/CPM.cm
 ```cmake
 include(cmake/CPM.cmake)
 
-CPMAddPackage("gh:kcexn/cloudbus-net@0.9.0")
+CPMAddPackage("gh:kcexn/cppnet@0.9.0")
 
 target_link_libraries(your_target PRIVATE cppnet)
 ```
@@ -39,7 +39,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   cppnet
-  GIT_REPOSITORY https://github.com/kcexn/cloudbus-net.git
+  GIT_REPOSITORY https://github.com/kcexn/cppnet.git
   GIT_TAG v0.9.0
 )
 FetchContent_MakeAvailable(cppnet)
@@ -50,8 +50,8 @@ target_link_libraries(your_target PRIVATE cppnet)
 ### Manual Installation
 
 ```bash
-git clone https://github.com/kcexn/cloudbus-net.git
-cd cloudbus-net
+git clone https://github.com/kcexn/cppnet.git
+cd cppnet
 cmake --preset release
 sudo cmake --install build/release
 ```
@@ -239,7 +239,7 @@ The library uses the CRTP (Curiously Recurring Template Pattern) for services:
 
 Your service inherits from the appropriate template and implements:
 
-- `operator()` to handle received data (required - must call `reader()` to continue)
+- `service()` to handle received data (required - must call `submit_recv()` to continue)
 - `initialize()` to configure the socket (optional)
 - `stop()` for graceful shutdown (optional, TCP only)
 
