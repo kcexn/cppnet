@@ -18,8 +18,8 @@
 #pragma once
 #ifndef CPPNET_ASYNC_UDP_SERVICE_IMPL_HPP
 #define CPPNET_ASYNC_UDP_SERVICE_IMPL_HPP
-#include "net/service/async_udp_service.hpp"
-namespace net::service {
+#include "cppnet/service/async_udp_service.hpp"
+namespace cppnet::service {
 
 template <typename UDPStreamHandler, std::size_t Size>
 template <typename T>
@@ -130,5 +130,5 @@ auto async_udp_service<UDPStreamHandler, Size>::stop_() -> void
   shutdown(sockfd, SHUT_RD);
 }
 
-} // namespace net::service
+} // namespace cppnet::service
 #endif // CPPNET_ASYNC_UDP_SERVICE_IMPL_HPP

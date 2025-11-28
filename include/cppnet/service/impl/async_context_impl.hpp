@@ -19,10 +19,10 @@
 #pragma once
 #ifndef CPPNET_ASYNC_CONTEXT_IMPL_HPP
 #define CPPNET_ASYNC_CONTEXT_IMPL_HPP
-#include "net/service/async_context.hpp"
+#include "cppnet/service/async_context.hpp"
 
 #include <cassert>
-namespace net::service {
+namespace cppnet::service {
 /** @brief Internal net::service implementation details. */
 namespace detail {
 /**
@@ -98,5 +98,5 @@ inline auto async_context::run() -> void
   while (poller.wait_for(to_millis(timers.resolve())) || !is_empty.test());
 }
 
-} // namespace net::service
+} // namespace cppnet::service
 #endif // CPPNET_ASYNC_CONTEXT_IMPL_HPP

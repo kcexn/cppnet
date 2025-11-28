@@ -15,13 +15,13 @@
 #pragma once
 #ifndef CPPNET_TEST_TCP_FIXTURE_HPP
 #define CPPNET_TEST_TCP_FIXTURE_HPP
-#include "net/service/async_tcp_service.hpp"
-#include "net/service/context_thread.hpp"
+#include "cppnet/service/async_tcp_service.hpp"
+#include "cppnet/service/context_thread.hpp"
 
 #include <gtest/gtest.h>
 #include <io/io.hpp>
 
-using namespace net::service;
+using namespace cppnet::service;
 
 static std::atomic<int> test_counter{};
 struct tcp_echo_service : public async_tcp_service<tcp_echo_service> {

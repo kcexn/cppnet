@@ -13,18 +13,18 @@
 // limitations under the License.
 // NOLINTBEGIN
 #pragma once
-#include <exception>
 #ifndef CPPNET_TEST_TCP_CLIENT_FIXTURE_HPP
 #define CPPNET_TEST_TCP_CLIENT_FIXTURE_HPP
-#include "net/service/context_thread.hpp"
+#include "cppnet/service/context_thread.hpp"
 #include "test_tcp_fixture.hpp"
 
 #include <gtest/gtest.h>
 #include <io/io.hpp>
 
+#include <exception>
 #include <netdb.h>
 
-using namespace net::service;
+using namespace cppnet::service;
 
 struct tcp_echo_clients {
   /** @brief The sender for the asynchronous operations. */

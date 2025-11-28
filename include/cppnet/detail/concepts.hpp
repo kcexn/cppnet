@@ -21,15 +21,15 @@
 #include <concepts>
 #include <system_error>
 // Forward declarations
-namespace net::service {
+namespace cppnet::service {
 struct async_context;
-} // namespace net::service
+} // namespace cppnet::service
 
 /**
  * @namespace net
  * @brief The root namespace for all cppnet components.
  */
-namespace net {
+namespace cppnet {
 /** @brief A concept to validate the C++ BasicLockable requirement. */
 template <typename Lock>
 concept BasicLockable = requires(Lock lock) {
@@ -59,5 +59,5 @@ concept InterruptSource = requires(const Tag tag) {
 };
 } // namespace timers.
 
-} // namespace net
+} // namespace cppnet
 #endif // CPPNET_CONCEPT_HPP

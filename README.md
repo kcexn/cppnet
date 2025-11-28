@@ -69,10 +69,10 @@ Some simple examples of applications built with cppnet:
 ### TCP Echo Server
 
 ```cpp
-#include <net/cppnet.hpp>
+#include <cppnet/cppnet.hpp>
 #include <arpa/inet.h>
 
-using namespace net::service;
+using namespace cppnet::service;
 
 // Define your service by inheriting from async_tcp_service
 struct echo_service : public async_tcp_service<echo_service> {
@@ -133,10 +133,10 @@ int main() {
 ### UDP Echo Server
 
 ```cpp
-#include <net/cppnet.hpp>
+#include <cppnet/cppnet.hpp>
 #include <arpa/inet.h>
 
-using namespace net::service;
+using namespace cppnet::service;
 
 struct udp_echo_service : public async_udp_service<udp_echo_service> {
   using Base = async_udp_service<udp_echo_service>;
@@ -209,8 +209,8 @@ private:
 
 ```bash
 # Clone the repository
-git clone https://github.com/kcexn/cloudbus-net.git
-cd cloudbus-net
+git clone https://github.com/kcexn/cppnet.git
+cd cppnet
 
 # Debug build (with tests and coverage)
 cmake --preset debug

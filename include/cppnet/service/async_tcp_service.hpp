@@ -19,7 +19,7 @@
 #ifndef CPPNET_ASYNC_TCP_SERVICE_HPP
 #define CPPNET_ASYNC_TCP_SERVICE_HPP
 #include "async_context.hpp"
-namespace net::service {
+namespace cppnet::service {
 /**
  * @brief A ServiceLike Async TCP Service.
  * @tparam StreamHandler The StreamHandler type that derives from
@@ -180,7 +180,7 @@ private:
   std::atomic<socket_type> acceptor_sockfd_ = io::socket::INVALID_SOCKET;
 };
 
-} // namespace net::service
+} // namespace cppnet::service
 
 #include "impl/async_tcp_service_impl.hpp" // IWYU pragma: export
 #endif                                     // CPPNET_ASYNC_TCP_SERVICE_HPP

@@ -23,7 +23,7 @@
 #include <mutex>
 #include <thread>
 /** @brief This namespace is for network services. */
-namespace net::service {
+namespace cppnet::service {
 /** @brief internal service implementation details. */
 namespace detail {
 /** @brief Null service that services as a ServiceLike placeholder. */
@@ -114,7 +114,7 @@ private:
  */
 using context_thread = basic_context_thread<detail::null_service>;
 
-} // namespace net::service
+} // namespace cppnet::service
 
 #include "impl/context_thread_impl.hpp" // IWYU pragma: export
 

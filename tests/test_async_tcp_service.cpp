@@ -15,7 +15,7 @@
 // NOLINTBEGIN
 #include "test_tcp_fixture.hpp"
 #include <atomic>
-using namespace net::service;
+using namespace cppnet::service;
 
 TEST_F(AsyncTcpServiceTest, StartTest)
 {
@@ -153,7 +153,7 @@ TEST_F(AsyncTcpServiceTest, ServerDrainTest)
   using namespace io;
   using namespace io::socket;
   using namespace std::chrono;
-  using namespace net::timers;
+  using namespace cppnet::timers;
   using enum async_context::signals;
   using enum async_context::context_state;
 

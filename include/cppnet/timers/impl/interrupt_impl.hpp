@@ -18,9 +18,9 @@
 #pragma once
 #ifndef CPPNET_INTERRUPT_IMPL_HPP
 #define CPPNET_INTERRUPT_IMPL_HPP
-#include "net/timers/interrupt.hpp"
+#include "cppnet/timers/interrupt.hpp"
 /** @brief This namespace is for timers and interrupts. */
-namespace net::timers {
+namespace cppnet::timers {
 
 inline auto socketpair_interrupt_source_t::interrupt() const noexcept -> void
 {
@@ -37,6 +37,6 @@ inline auto interrupt<Source>::operator()() const noexcept -> void
   Source::interrupt();
 }
 
-} // namespace net::timers
+} // namespace cppnet::timers
 
 #endif // CPPNET_INTERRUPT_IMPL_HPP

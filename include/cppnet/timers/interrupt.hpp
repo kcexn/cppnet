@@ -18,11 +18,11 @@
 #pragma once
 #ifndef CPPNET_INTERRUPT_HPP
 #define CPPNET_INTERRUPT_HPP
-#include "net/detail/concepts.hpp"
+#include "cppnet/detail/concepts.hpp"
 
 #include <io/io.hpp>
 /** @brief This namespace is for timers and interrupts. */
-namespace net::timers {
+namespace cppnet::timers {
 /** @brief A socketpair interrupt source. */
 struct socketpair_interrupt_source_t {
   /** @brief The native socket type. */
@@ -52,7 +52,7 @@ template <InterruptSource Source> struct interrupt : public Source {
   inline auto operator()() const noexcept -> void;
 };
 
-} // namespace net::timers
+} // namespace cppnet::timers
 
 #include "impl/interrupt_impl.hpp" // IWYU pragma: export
 

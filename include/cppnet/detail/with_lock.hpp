@@ -22,7 +22,7 @@
 
 #include <mutex>
 /** @brief This namespace provides internal cppnet implementation details. */
-namespace net::detail {
+namespace cppnet::detail {
 /**
  * @brief Runs the supplied functor while holding the acquired lock.
  * @tparam Lock A type that satisfies the BasicLockable named requirement.
@@ -39,5 +39,5 @@ auto with_lock(Lock &mtx, Fn &&func) -> decltype(auto)
   return std::forward<Fn>(func)();
 }
 
-} // namespace net::detail
+} // namespace cppnet::detail
 #endif // CPPNET_WITH_LOCK_HPP

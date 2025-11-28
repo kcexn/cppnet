@@ -14,14 +14,14 @@
 #pragma once
 #ifndef CPPNET_TIMERS_HPP
 #define CPPNET_TIMERS_HPP
+#include "cppnet/detail/concepts.hpp"
 #include "interrupt.hpp"
-#include "net/detail/concepts.hpp"
 
 #include <chrono>
 #include <functional>
 #include <queue>
 #include <stack>
-namespace net::timers {
+namespace cppnet::timers {
 
 /** @brief timer_id type. */
 using timer_id = std::size_t;
@@ -199,7 +199,7 @@ private:
   mutable std::mutex mtx_;
 };
 
-} // namespace net::timers
+} // namespace cppnet::timers
 
 #include "impl/timers_impl.hpp" // IWYU pragma: export
 

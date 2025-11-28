@@ -14,9 +14,9 @@
 #pragma once
 #ifndef CPPNET_TIMERS_IMPL_HPP
 #define CPPNET_TIMERS_IMPL_HPP
-#include "net/detail/with_lock.hpp"
-#include "net/timers/timers.hpp"
-namespace net::timers {
+#include "cppnet/detail/with_lock.hpp"
+#include "cppnet/timers/timers.hpp"
+namespace cppnet::timers {
 
 namespace detail {
 /**
@@ -237,7 +237,7 @@ auto update_timers(TimersState &state, Iterator begin, Iterator unarmed,
 template <InterruptSource Interrupt>
 auto timers<Interrupt>::resolve() -> duration
 {
-  using net::detail::with_lock;
+  using cppnet::detail::with_lock;
   using namespace detail;
   using namespace std::chrono;
   auto &[events, eventq, free_ids] = state_;
@@ -261,5 +261,5 @@ auto timers<Interrupt>::resolve() -> duration
     return update_timers(state_, timers.begin(), unarmed, end);
   });
 }
-} // namespace net::timers
+} // namespace cppnet::timers
 #endif // CPPNET_TIMERS_IMPL_HPP

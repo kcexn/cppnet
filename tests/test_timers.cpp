@@ -13,12 +13,12 @@
 // limitations under the License.
 
 // NOLINTBEGIN
-#include "net/timers/interrupt.hpp"
-#include "net/timers/timers.hpp"
+#include "cppnet/timers/interrupt.hpp"
+#include "cppnet/timers/timers.hpp"
 
 #include <gtest/gtest.h>
 
-using namespace net::timers;
+using namespace cppnet::timers;
 
 using interrupt_source = socketpair_interrupt_source_t;
 using timers_type = timers<interrupt_source>;

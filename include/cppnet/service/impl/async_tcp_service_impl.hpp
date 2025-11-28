@@ -18,10 +18,10 @@
 #pragma once
 #ifndef CPPNET_ASYNC_TCP_SERVICE_IMPL_HPP
 #define CPPNET_ASYNC_TCP_SERVICE_IMPL_HPP
-#include "net/service/async_tcp_service.hpp"
+#include "cppnet/service/async_tcp_service.hpp"
 
 #include <system_error>
-namespace net::service {
+namespace cppnet::service {
 template <typename TCPStreamHandler, std::size_t Size>
 template <typename T>
 async_tcp_service<TCPStreamHandler, Size>::async_tcp_service(
@@ -153,5 +153,5 @@ auto async_tcp_service<TCPStreamHandler, Size>::stop_() -> void
   shutdown(sockfd, SHUT_RD);
 }
 
-} // namespace net::service
+} // namespace cppnet::service
 #endif // CPPNET_ASYNC_TCP_SERVICE_IMPL_HPP

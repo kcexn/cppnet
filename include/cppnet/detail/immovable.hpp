@@ -19,7 +19,7 @@
 #ifndef CPPNET_IMMOVABLE_HPP
 #define CPPNET_IMMOVABLE_HPP
 /** @brief This namespace provides internal cppnet implementation details. */
-namespace net::detail {
+namespace cppnet::detail {
 /**
  * @brief This struct can be used as a base class to make derived
  *        classes immovable.
@@ -38,5 +38,5 @@ struct immovable {
   /** @brief Default destructor. */
   ~immovable() = default;
 };
-} // namespace net::detail
+} // namespace cppnet::detail
 #endif // CPPNET_IMMOVABLE_HPP

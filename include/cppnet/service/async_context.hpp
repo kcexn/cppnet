@@ -19,8 +19,8 @@
 #pragma once
 #ifndef CPPNET_ASYNC_CONTEXT_HPP
 #define CPPNET_ASYNC_CONTEXT_HPP
-#include "net/detail/immovable.hpp"
-#include "net/timers/timers.hpp"
+#include "cppnet/detail/immovable.hpp"
+#include "cppnet/timers/timers.hpp"
 
 #include <exec/async_scope.hpp>
 #include <io/io.hpp>
@@ -28,7 +28,7 @@
 #include <atomic>
 #include <cstdint>
 /** @brief This namespace is for network services. */
-namespace net::service {
+namespace cppnet::service {
 
 /** @brief An asynchronous execution context. */
 struct async_context : detail::immovable {
@@ -109,7 +109,7 @@ struct async_context : detail::immovable {
   inline auto run() -> void;
 };
 
-} // namespace net::service
+} // namespace cppnet::service
 
 #include "impl/async_context_impl.hpp" // IWYU pragma: export
 

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 // NOLINTBEGIN
-#include "net/service/context_thread.hpp"
+#include "cppnet/service/context_thread.hpp"
 
 #include <gtest/gtest.h>
 
 #include <condition_variable>
 #include <mutex>
 
-using namespace net::service;
+using namespace cppnet::service;
 
 int socketpair(int domain, int type, int __protocol, int __fds[2])
 {

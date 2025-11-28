@@ -13,15 +13,16 @@
 // limitations under the License.
 // NOLINTBEGIN
 #pragma once
-#include <atomic>
 #ifndef CPPNET_TEST_UDP_FIXTURE_HPP
 #define CPPNET_TEST_UDP_FIXTURE_HPP
-#include "net/service/async_udp_service.hpp"
-#include "net/service/context_thread.hpp"
+#include "cppnet/service/async_udp_service.hpp"
+#include "cppnet/service/context_thread.hpp"
 
 #include <gtest/gtest.h>
 
-using namespace net::service;
+#include <atomic>
+
+using namespace cppnet::service;
 
 struct udp_echo_service : public async_udp_service<udp_echo_service> {
   using Base = async_udp_service<udp_echo_service>;

@@ -19,10 +19,10 @@
 #pragma once
 #ifndef CPPNET_CONTEXT_THREAD_IMPL_HPP
 #define CPPNET_CONTEXT_THREAD_IMPL_HPP
-#include "net/service/context_thread.hpp"
+#include "cppnet/service/context_thread.hpp"
 
 #include <stdexec/execution.hpp>
-namespace net::service {
+namespace cppnet::service {
 template <ServiceLike Service>
 auto basic_context_thread<Service>::stop() noexcept -> void
 {
@@ -118,5 +118,5 @@ basic_context_thread<Service>::~basic_context_thread()
     server_.join();
   }
 }
-} // namespace net::service
+} // namespace cppnet::service
 #endif // CPPNET_CONTEXT_THREAD_IMPL_HPP
