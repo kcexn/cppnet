@@ -56,7 +56,7 @@ struct async_context : detail::immovable {
   /** @brief An enum of all valid async context signals. */
   enum signals : std::uint8_t { terminate = 0, user1, END };
   /** @brief An enum of valid context states. */
-  enum context_states : std::uint8_t { PENDING = 0, STARTED, STOPPED };
+  enum context_state : std::uint8_t { PENDING = 0, STARTED, STOPPED };
 
   /** @brief The event loop timers. */
   timers_type timers;
@@ -67,7 +67,7 @@ struct async_context : detail::immovable {
   /** @brief The active signal mask. */
   std::atomic<signal_mask> sigmask;
   /** @brief A counter that tracks the context state. */
-  std::atomic<context_states> state{PENDING};
+  std::atomic<context_state> state{PENDING};
 
   /**
    * @brief Sets the signal mask, then interrupts the service.

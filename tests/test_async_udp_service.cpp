@@ -96,7 +96,7 @@ TEST_F(AsyncUDPServiceTest, AsyncServerTest)
   using namespace io;
   using namespace io::socket;
   using enum async_context::signals;
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   server_v4->start(addr_v4);
   server_v6->start(addr_v6);

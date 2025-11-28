@@ -109,7 +109,7 @@ TEST_F(AsyncTcpServiceTest, AsyncServerTest)
   using namespace io;
   using namespace io::socket;
   using enum async_context::signals;
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   server_v4->start(addr_v4);
   server_v6->start(addr_v6);
@@ -155,7 +155,7 @@ TEST_F(AsyncTcpServiceTest, ServerDrainTest)
   using namespace std::chrono;
   using namespace net::timers;
   using enum async_context::signals;
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   server_v4->start(addr_v4);
   ASSERT_EQ(server_v4->state, STARTED);

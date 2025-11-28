@@ -92,6 +92,24 @@ auto basic_context_thread<Service>::start(Args &&...args) -> void
 }
 
 template <ServiceLike Service>
+auto basic_context_thread<Service>::wait_until(
+    context_state cond) const noexcept -> void
+{
+  auto curr_state = state.load();
+  while (curr_state < cond)
+  {
+    state.wait(curr_state);
+    curr_state = state.load();
+  }
+}
+
+template <ServiceLike Service>
+auto basic_context_thread<Service>::wait() const noexcept -> void
+{
+  wait_until(STOPPED);
+}
+
+template <ServiceLike Service>
 basic_context_thread<Service>::~basic_context_thread()
 {
   if (state > PENDING)

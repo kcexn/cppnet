@@ -77,6 +77,20 @@ public:
    */
   template <typename... Args> auto start(Args &&...args) -> void;
 
+  /**
+   * @brief Waits for a condition.
+   * @details Blocks the current thread until the service state condition
+   * is satisfied.
+   * @param cond The state that the current thread should wait for.
+   */
+  auto wait_until(context_state cond) const noexcept -> void;
+
+  /**
+   * @brief Waits for the service to stop.
+   * @details Blocks the current thread until the service stops.
+   */
+  auto wait() const noexcept -> void;
+
   /** @brief The destructor signals the thread before joining it. */
   ~basic_context_thread();
 

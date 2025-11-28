@@ -51,7 +51,7 @@ struct test_service {
 
 TEST_F(AsyncServiceTest, StartTest)
 {
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   auto service = basic_context_thread<test_service>();
 

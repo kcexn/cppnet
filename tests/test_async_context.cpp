@@ -61,7 +61,7 @@ struct test_service {
 
 TEST_F(AsyncContextTest, AsyncServiceTest)
 {
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   auto service = basic_context_thread<test_service>();
   service.start();
@@ -74,7 +74,7 @@ TEST_F(AsyncContextTest, AsyncServiceTest)
 
 TEST_F(AsyncContextTest, StartTwiceTest)
 {
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   auto service = basic_context_thread<test_service>{};
 
@@ -89,7 +89,7 @@ TEST_F(AsyncContextTest, StartTwiceTest)
 
 TEST_F(AsyncContextTest, TestUser1Signal)
 {
-  using enum async_context::context_states;
+  using enum async_context::context_state;
 
   auto service = basic_context_thread<test_service>();
 
@@ -102,5 +102,206 @@ TEST_F(AsyncContextTest, TestUser1Signal)
     test_cv.wait(lock, [&] { return test_signal == service.user1; });
   }
   EXPECT_EQ(test_signal, service.user1);
+}
+
+TEST_F(AsyncContextTest, WaitUntilStarted)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  ASSERT_EQ(service.state, PENDING);
+
+  auto wait_thread = std::thread([&] { service.wait_until(STARTED); });
+
+  service.start();
+  wait_thread.join();
+
+  ASSERT_EQ(service.state, STARTED);
+}
+
+TEST_F(AsyncContextTest, WaitUntilStopped)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  service.start();
+  ASSERT_EQ(service.state, STARTED);
+
+  auto wait_thread = std::thread([&] { service.wait_until(STOPPED); });
+
+  service.signal(service.terminate);
+  wait_thread.join();
+
+  ASSERT_EQ(service.state, STOPPED);
+}
+
+TEST_F(AsyncContextTest, WaitUntilAlreadySatisfied)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  service.start();
+  ASSERT_EQ(service.state, STARTED);
+
+  service.wait_until(PENDING);
+  EXPECT_EQ(service.state, STARTED);
+
+  service.wait_until(STARTED);
+  EXPECT_EQ(service.state, STARTED);
+}
+
+TEST_F(AsyncContextTest, WaitUntilMultipleWaiters)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  ASSERT_EQ(service.state, PENDING);
+
+  std::atomic<int> waiters_unblocked{0};
+
+  auto wait_thread1 = std::thread([&] {
+    service.wait_until(STARTED);
+    waiters_unblocked.fetch_add(1);
+  });
+
+  auto wait_thread2 = std::thread([&] {
+    service.wait_until(STARTED);
+    waiters_unblocked.fetch_add(1);
+  });
+
+  auto wait_thread3 = std::thread([&] {
+    service.wait_until(STARTED);
+    waiters_unblocked.fetch_add(1);
+  });
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  EXPECT_EQ(waiters_unblocked.load(), 0);
+
+  service.start();
+
+  wait_thread1.join();
+  wait_thread2.join();
+  wait_thread3.join();
+
+  EXPECT_EQ(waiters_unblocked.load(), 3);
+  ASSERT_EQ(service.state, STARTED);
+}
+
+TEST_F(AsyncContextTest, WaitUntilPendingToStopped)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  ASSERT_EQ(service.state, PENDING);
+
+  auto wait_thread = std::thread([&] { service.wait_until(STOPPED); });
+
+  service.start();
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  service.signal(service.terminate);
+  wait_thread.join();
+
+  ASSERT_EQ(service.state, STOPPED);
+}
+
+TEST_F(AsyncContextTest, WaitFromPendingToStopped)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  ASSERT_EQ(service.state, PENDING);
+
+  auto wait_thread = std::thread([&] { service.wait(); });
+
+  service.start();
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  service.signal(service.terminate);
+  wait_thread.join();
+
+  ASSERT_EQ(service.state, STOPPED);
+}
+
+TEST_F(AsyncContextTest, WaitFromStartedToStopped)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  service.start();
+  ASSERT_EQ(service.state, STARTED);
+
+  auto wait_thread = std::thread([&] { service.wait(); });
+
+  service.signal(service.terminate);
+  wait_thread.join();
+
+  ASSERT_EQ(service.state, STOPPED);
+}
+
+TEST_F(AsyncContextTest, WaitWhenAlreadyStopped)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  service.start();
+  ASSERT_EQ(service.state, STARTED);
+
+  service.signal(service.terminate);
+  service.state.wait(STARTED);
+  ASSERT_EQ(service.state, STOPPED);
+
+  service.wait();
+
+  EXPECT_EQ(service.state, STOPPED);
+}
+
+TEST_F(AsyncContextTest, WaitMultipleWaiters)
+{
+  using enum async_context::context_state;
+
+  auto service = basic_context_thread<test_service>();
+  service.start();
+  ASSERT_EQ(service.state, STARTED);
+
+  std::atomic<int> waiters_unblocked{0};
+
+  auto wait_thread1 = std::thread([&] {
+    service.wait();
+    waiters_unblocked.fetch_add(1);
+  });
+
+  auto wait_thread2 = std::thread([&] {
+    service.wait();
+    waiters_unblocked.fetch_add(1);
+  });
+
+  auto wait_thread3 = std::thread([&] {
+    service.wait();
+    waiters_unblocked.fetch_add(1);
+  });
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  EXPECT_EQ(waiters_unblocked.load(), 0);
+
+  service.signal(service.terminate);
+
+  wait_thread1.join();
+  wait_thread2.join();
+  wait_thread3.join();
+
+  EXPECT_EQ(waiters_unblocked.load(), 3);
+  ASSERT_EQ(service.state, STOPPED);
+}
+
+TEST_F(AsyncContextTest, WaitNoexceptGuarantee)
+{
+  auto service = basic_context_thread<test_service>();
+  service.start();
+
+  EXPECT_TRUE(noexcept(service.wait()));
+
+  service.signal(service.terminate);
+  service.wait();
 }
 // NOLINTEND
