@@ -59,11 +59,11 @@ namespace cppnet::service {
  *   // once.
  *   auto stop() -> void {}
  *
- *   auto operator()(async_context &ctx, const socket_dialog &socket,
+ *   auto service(async_context &ctx, const socket_dialog &socket,
  *                   std::shared_ptr<read_context> rctx,
  *                   std::span<const std::byte> buf) -> void
  *   {
- *     reader(ctx, socket, std::move(rctx));
+ *     submit_recv(ctx, socket, std::move(rctx));
  *   }
  * };
  * @endcode
