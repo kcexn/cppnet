@@ -74,6 +74,9 @@ public:
    * with the provided asynchronous context.
    * @tparam Args Argument types for constructing the Service.
    * @param args The arguments to forward to the Service constructor.
+   * @throws std::invalid_argument if the thread is already started.
+   * @throws std::system_error on failure to create a socketpair, on service
+   * start failure, or on failure to start the thread.
    */
   template <typename... Args> auto start(Args &&...args) -> void;
 

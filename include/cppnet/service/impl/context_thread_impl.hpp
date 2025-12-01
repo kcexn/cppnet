@@ -38,7 +38,7 @@ auto basic_context_thread<Service>::start(Args &&...args) -> void
 {
   auto lock = std::lock_guard{mtx_};
   if (state != PENDING)
-    throw std::invalid_argument("context_thread already started");
+    throw std::invalid_argument("basic_context_thread already started");
 
   auto &sockets = timers.sockets;
   if (socketpair(AF_UNIX, SOCK_STREAM, 0, sockets.data()))
